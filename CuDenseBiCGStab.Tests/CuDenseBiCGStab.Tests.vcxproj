@@ -11,8 +11,8 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{4DABD6B4-9B24-CF6C-E780-19F8F05F5CAA}</ProjectGuid>
-    <RootNamespace>CuDenseBiCGStab</RootNamespace>
+    <ProjectGuid>{D8DCC9A6-B146-CA00-B971-E5D3AF0238DA}</ProjectGuid>
+    <RootNamespace>CuDenseBiCGStab_Tests</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
@@ -78,11 +78,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <CudaCompile Include="kernel.cu" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="Operators\LinearOperator.h" />
-    <ClInclude Include="Solvers\BiCGStab.cuh" />
-    <ClInclude Include="Solvers\Solver.cuh" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

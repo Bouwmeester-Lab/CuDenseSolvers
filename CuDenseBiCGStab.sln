@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.14.36327.8 d17.14
+VisualStudioVersion = 17.14.36327.8
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CuDenseBiCGStab", "CuDenseBiCGStab\CuDenseBiCGStab.vcxproj", "{4DABD6B4-9B24-CF6C-E780-19F8F05F5CAA}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "CuDenseBiCGStab.Tests", "CuDenseBiCGStab.Tests\CuDenseBiCGStab.Tests.vcxproj", "{D8DCC9A6-B146-CA00-B971-E5D3AF0238DA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{4DABD6B4-9B24-CF6C-E780-19F8F05F5CAA}.Debug|x64.Build.0 = Debug|x64
 		{4DABD6B4-9B24-CF6C-E780-19F8F05F5CAA}.Release|x64.ActiveCfg = Release|x64
 		{4DABD6B4-9B24-CF6C-E780-19F8F05F5CAA}.Release|x64.Build.0 = Release|x64
+		{D8DCC9A6-B146-CA00-B971-E5D3AF0238DA}.Debug|x64.ActiveCfg = Debug|x64
+		{D8DCC9A6-B146-CA00-B971-E5D3AF0238DA}.Debug|x64.Build.0 = Debug|x64
+		{D8DCC9A6-B146-CA00-B971-E5D3AF0238DA}.Release|x64.ActiveCfg = Release|x64
+		{D8DCC9A6-B146-CA00-B971-E5D3AF0238DA}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
