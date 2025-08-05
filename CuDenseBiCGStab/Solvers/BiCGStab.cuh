@@ -13,6 +13,9 @@ public:
 	~DoubleBiCGStab();
 	virtual int solve(const double* b, double* x, int maxIterations, double tolerance, cudaStream_t stream = cudaStreamPerThread) override;
 	virtual void setOperator(const LinearOperator<double>& A) override;
+	virtual int getNumIterations() const override;
+	// Method to get the residual norm
+	virtual double getResidualNorm() const override;
 private:
 	/// <summary>
 	/// Residual vector
@@ -27,6 +30,10 @@ private:
 	double* v;
 	double* s;
 	double* t;
+	double resid = 0.0; // Residual norm
+
+	int numIterations = 0;
+	
 
 	cublasHandle_t handle;
 
@@ -66,7 +73,7 @@ int DoubleBiCGStab::solve(const double* b, double* x, int maxIterations, double 
 
 	double rho_old = 1.0, alpha = 1.0, omega = 1.0;
 	double rho_new = 0.0, beta = 0.0;
-	double resid = 0.0;
+	resid = 0.0;
 
 	for (int k = 0; k < maxIterations; ++k)
 	{
@@ -106,7 +113,8 @@ int DoubleBiCGStab::solve(const double* b, double* x, int maxIterations, double 
 		if(resid < tolerance) {
 			// If the residual is small enough, we can stop
 			cublasDaxpy(handle, A->size(), &alpha, p, 1, x, 1); // x = x + alpha * p
-			return k + 1; // Return number of iterations
+			numIterations = k + 1; // Return number of iterations
+			return numIterations;
 		}
 
 		// t = A * s
@@ -146,6 +154,16 @@ void DoubleBiCGStab::setOperator(const LinearOperator<double>& Aop)
 		allocateBuffers();
 	}
 	
+}
+
+int DoubleBiCGStab::getNumIterations() const
+{
+	return numIterations;
+}
+
+double DoubleBiCGStab::getResidualNorm() const
+{
+	return resid;
 }
 
 void DoubleBiCGStab::allocateBuffers()

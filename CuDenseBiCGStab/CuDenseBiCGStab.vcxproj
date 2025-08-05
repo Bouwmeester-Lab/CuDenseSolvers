@@ -81,6 +81,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Operators\LinearOperator.h" />
+    <ClInclude Include="Operators\MatrixOperator.cuh" />
     <ClInclude Include="Solvers\BiCGStab.cuh" />
     <ClInclude Include="Solvers\Solver.cuh" />
   </ItemGroup>
