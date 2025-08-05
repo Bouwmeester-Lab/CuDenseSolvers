@@ -53,12 +53,15 @@ int DoubleBiCGStab::solve(const double* b, double* x, int maxIterations, double 
 	{
 		throw std::runtime_error("Operator A is not set.");
 	}
+	// Initialize buffers to zero
+	cudaMemset(p, 0, A->size() * sizeof(double));
+	cudaMemset(v, 0, A->size() * sizeof(double));
 
 	// compute the initial residual r = b - Ax
 	A->apply(x, r, stream); // r = Ax
-	cublasDcopy(handle, A->size(), b, 1, r0, 1); // r0 = b
+	cublasDcopy(handle, A->size(), b, 1, r0, 1); // r0 <= b
 	const double neg1 = -1.0;
-	cublasDaxpy(handle, A->size(), &neg1, r, 1, r0, 1); // r0 = b - Ax
+	cublasDaxpy(handle, A->size(), &neg1, r, 1, r0, 1); // r0 = r0 - Ax
 	cudaMemcpyAsync(r, r0, A->size() * sizeof(double), cudaMemcpyDeviceToDevice, stream); // r <= r0
 
 	double rho_old = 1.0, alpha = 1.0, omega = 1.0;
@@ -85,7 +88,52 @@ int DoubleBiCGStab::solve(const double* b, double* x, int maxIterations, double 
 		// p = p + alpha * r
 		cublasDaxpy(handle, A->size(), &alpha, r, 1, p, 1);
 
+		// v = A * p
+		A->apply(p, v, stream);
+
+		double temp_dot;
+		cublasDdot(handle, A->size(), r0, 1, v, 1, &temp_dot); // temp_dot = r0 . v
+		alpha = rho_new / temp_dot;
+
+		// s = r - alpha * v
+		const double negAlpha = -alpha;
+		cublasDcopy(handle, A->size(), r, 1, s, 1); // s <= r
+		cublasDaxpy(handle, A->size(), &negAlpha, v, 1, s, 1); // s = s - alpha * v
+		
+		// Check if the norm of s is small enough
+		cublasDnrm2(handle, A->size(), s, 1, &resid);
+
+		if(resid < tolerance) {
+			// If the residual is small enough, we can stop
+			cublasDaxpy(handle, A->size(), &alpha, p, 1, x, 1); // x = x + alpha * p
+			return k + 1; // Return number of iterations
+		}
+
+		// t = A * s
+		A->apply(s, t, stream);
+		double ts, tt;
+		cublasDdot(handle, A->size(), s, 1, t, 1, &ts); // ts = s . t
+		cublasDdot(handle, A->size(), t, 1, t, 1, &tt); // tt = t . t
+		omega = ts / tt;
+
+		// x = x + alpha * p + omega * s
+		cublasDaxpy(handle, A->size(), &alpha, p, 1, x, 1);
+		cublasDaxpy(handle, A->size(), &omega, s, 1, x, 1);
+
+		// r = s - omega * t // this is the new residual. It's equivalent to doing b - A x with x been the updated solution above. r = b - A (x_0 + alpha * p + omega * s) = b - A * x_0 - alpha * A * p - omega * A * s = r_old - alpha * v - omega * t = s  - omega * t 
+		cublasDcopy(handle, A->size(), s, 1, r, 1); // r <= s
+		double neg_omega = -omega;
+		cublasDaxpy(handle, A->size(), &neg_omega, t, 1, r, 1); // r = r - omega * t
+
+		// Check convergence: ||r|| < tol
+		cublasDnrm2(handle, A->size(), r, 1, &resid);
+		if (resid < tolerance) break;
+
+
+		rho_old = rho_new;
 	}
+
+	return (resid < tolerance) ? 0 : 1;
 }
 
 void DoubleBiCGStab::setOperator(const LinearOperator<double>& Aop)
@@ -113,9 +161,7 @@ void DoubleBiCGStab::allocateBuffers()
 	cudaMalloc(&s, N * sizeof(double));
 	cudaMalloc(&t, N * sizeof(double));
 
-	// Initialize buffers to zero
-	cudaMemset(p, 0, N * sizeof(double));
-	cudaMemset(v, 0, N * sizeof(double));
+	
 }
 
 void DoubleBiCGStab::freeBuffers()
