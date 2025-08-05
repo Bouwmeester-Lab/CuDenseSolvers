@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CudaCompile Include="kernel.cu" />
-  </ItemGroup>
-  <ItemGroup>
     <Filter Include="Operators">
       <UniqueIdentifier>{3c9134de-636e-4728-a90d-e4e634448002}</UniqueIdentifier>
     </Filter>
@@ -24,5 +21,8 @@
     <ClInclude Include="Operators\MatrixOperator.cuh">
       <Filter>Operators</Filter>
     </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="CuDenseSolvers.cu" />
   </ItemGroup>
 </Project>

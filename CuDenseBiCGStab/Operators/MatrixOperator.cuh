@@ -5,6 +5,7 @@
 #include "device_launch_parameters.h"
 #include <vector>
 #include "cublas_v2.h"
+#include <stdexcept>
 
 template <typename T, size_t N>
 class MatrixOperator : public LinearOperator<T>

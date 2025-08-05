@@ -13,6 +13,7 @@
   <PropertyGroup Label="Globals">
     <ProjectGuid>{D8DCC9A6-B146-CA00-B971-E5D3AF0238DA}</ProjectGuid>
     <RootNamespace>CuDenseBiCGStab_Tests</RootNamespace>
+    <ProjectName>CuDenseSolvers.Tests</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
