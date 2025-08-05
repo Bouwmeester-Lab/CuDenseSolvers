@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <CudaCompile Include="CuDenseSolvers.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Operators\LinearOperator.h">
+      <Filter>Operators</Filter>
+    </ClInclude>
+    <ClInclude Include="Operators\MatrixOperator.cuh">
+      <Filter>Operators</Filter>
+    </ClInclude>
+    <ClInclude Include="Solvers\Solver.cuh">
+      <Filter>Solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="Solvers\BiCGStab.cuh">
+      <Filter>Solvers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Operators">
+      <UniqueIdentifier>{79f3c6b8-e525-4a60-a68c-32d7da56bea5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Solvers">
+      <UniqueIdentifier>{17e18418-fe09-4f4d-bbd0-60ec63661f66}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+</Project>
