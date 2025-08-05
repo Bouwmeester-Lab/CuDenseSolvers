@@ -90,12 +90,12 @@
     <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CuDenseBiCGStab\CuDenseBiCGStab.vcxproj">
-      <Project>{4dabd6b4-9b24-cf6c-e780-19f8f05f5caa}</Project>
-    </ProjectReference>
+    <ClInclude Include="SolverTests.cuh" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SolverTests.cuh" />
+    <ProjectReference Include="..\CuDenseSolvers\CuDenseSolvers.vcxproj">
+      <Project>{4dabd6b4-9b24-cf6c-e780-19f8f05f5caa}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
