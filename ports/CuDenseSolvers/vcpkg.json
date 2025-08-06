@@ -1,8 +1,8 @@
 {
-  "name": "CuDenseSolvers",
+  "name": "cudensesolvers",
   "version-string": "0.0.1",
   "description": "A library for solving dense linear systems using various algorithms.",
-  "license": "GNU General Public License v3.0",
+  "license": "GPL-3.0-only",
   "homepage": "https://github.com/Bouwmeester-Lab/CuDenseSolvers",
   "supports": "!(windows & arm)"
 }
