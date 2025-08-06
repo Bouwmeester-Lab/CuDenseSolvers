@@ -8,7 +8,7 @@ vcpkg_from_github(
 # Install headers from CuDenseSolvers/include/
 file(INSTALL
     "${SOURCE_PATH}/CuDenseSolvers/include"
-    DESTINATION "${CURRENT_PACKAGES_DIR}"
+    DESTINATION "${CURRENT_PACKAGES_DIR}/CuDenseSolvers"
     FILES_MATCHING
         PATTERN "*.h"
         PATTERN "*.hpp"
