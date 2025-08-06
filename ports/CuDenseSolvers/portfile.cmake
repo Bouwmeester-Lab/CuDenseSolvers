@@ -15,4 +15,4 @@ file(INSTALL
         PATTERN "*.cuh"
 )
 
-vcpkg_install_copyright(FILE_PATH "${SOURCE_PATH}/LICENSE.txt")
+vcpkg_install_copyright("${SOURCE_PATH}/LICENSE.txt")
