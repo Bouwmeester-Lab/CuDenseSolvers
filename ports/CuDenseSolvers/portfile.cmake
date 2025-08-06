@@ -1,13 +1,16 @@
 vcpkg_from_github(
     OUT_SOURCE_PATH SOURCE_PATH
     REPO Bouwmeester-Lab/CuDenseSolvers
-    REF master  # Or a tag like v0.1.0
-    SHA512 f32e25750c4cdfa880319558604ef7e1ced89cc505acad75a5f1624796cdf6873e835ac125bc53dd0af5622f7a7cfd388dff29e566c8efb12d739fbc93d865a8
+    REF v0.1  # Or a tag like v0.1.0
+    SHA512 bf6eadfc7cb1bbf6176744c6398ee5b0ed1241c0d4b6a985c17d5f692380d62b38e54a9246155fecfb00f807e9b976be1adbdfc7b6cfe23e8a3350e2c1b20637
 )
 
 # Install headers from CuDenseSolvers/include/
 file(INSTALL
     "${SOURCE_PATH}/CuDenseSolvers/include"
     DESTINATION "${CURRENT_PACKAGES_DIR}"
-    FILES_MATCHING PATTERN "*.hpp"
+    FILES_MATCHING
+        PATTERN "*.h"
+        PATTERN "*.hpp"
+        PATTERN "*.cuh"
 )
