@@ -4,17 +4,17 @@
     <CudaCompile Include="CuDenseSolvers.cu" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Operators\LinearOperator.h">
-      <Filter>Operators</Filter>
-    </ClInclude>
-    <ClInclude Include="Operators\MatrixOperator.cuh">
-      <Filter>Operators</Filter>
-    </ClInclude>
-    <ClInclude Include="Solvers\Solver.cuh">
+    <ClInclude Include="include\Solvers\BiCGStab.cuh">
       <Filter>Solvers</Filter>
     </ClInclude>
-    <ClInclude Include="Solvers\BiCGStab.cuh">
+    <ClInclude Include="include\Solvers\Solver.cuh">
       <Filter>Solvers</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Operators\LinearOperator.h">
+      <Filter>Operators</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Operators\MatrixOperator.cuh">
+      <Filter>Operators</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

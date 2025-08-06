@@ -47,6 +47,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.9\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);./include;</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -86,10 +87,10 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="Operators\LinearOperator.h" />
-    <ClInclude Include="Operators\MatrixOperator.cuh" />
-    <ClInclude Include="Solvers\BiCGStab.cuh" />
-    <ClInclude Include="Solvers\Solver.cuh" />
+    <ClInclude Include="include\Operators\LinearOperator.h" />
+    <ClInclude Include="include\Operators\MatrixOperator.cuh" />
+    <ClInclude Include="include\Solvers\BiCGStab.cuh" />
+    <ClInclude Include="include\Solvers\Solver.cuh" />
   </ItemGroup>
   <ItemGroup>
     <CudaCompile Include="CuDenseSolvers.cu" />
