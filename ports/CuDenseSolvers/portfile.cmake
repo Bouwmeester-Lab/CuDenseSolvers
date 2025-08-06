@@ -14,3 +14,5 @@ file(INSTALL
         PATTERN "*.hpp"
         PATTERN "*.cuh"
 )
+
+vcpkg_install_copyright(FILE_PATH "${SOURCE_PATH}/LICENSE.txt")
