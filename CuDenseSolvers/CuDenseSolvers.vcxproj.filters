@@ -16,6 +16,10 @@
     <ClInclude Include="include\Operators\MatrixOperator.cuh">
       <Filter>Operators</Filter>
     </ClInclude>
+    <ClInclude Include="BiCGStabKernel.cuh">
+      <Filter>Solvers\Kernels</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Constants.cuh" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Operators">
@@ -23,6 +27,9 @@
     </Filter>
     <Filter Include="Solvers">
       <UniqueIdentifier>{17e18418-fe09-4f4d-bbd0-60ec63661f66}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Solvers\Kernels">
+      <UniqueIdentifier>{63c9e946-abd5-46b5-bb84-c5ae7a79f9c5}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

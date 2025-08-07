@@ -85,7 +85,7 @@ int DoubleBiCGStab::solve(const double* b, double* x, int maxIterations, double 
 		beta = (rho_new / rho_old) * (alpha / omega);
 		
 		// Update p vector
-		// p = r + beta * (p - omega * v)
+		// p = alpha * r + beta * (p - omega * v)
 		// p = p - omega * v
 
 		const double negOmega = -omega;

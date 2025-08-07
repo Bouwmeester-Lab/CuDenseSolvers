@@ -87,6 +87,8 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BiCGStabKernel.cuh" />
+    <ClInclude Include="include\Constants.cuh" />
     <ClInclude Include="include\Operators\LinearOperator.h" />
     <ClInclude Include="include\Operators\MatrixOperator.cuh" />
     <ClInclude Include="include\Solvers\BiCGStab.cuh" />
