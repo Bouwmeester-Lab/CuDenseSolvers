@@ -161,6 +161,19 @@ TEST(SolverTests, TestBiCGStabWorkspace) {
 	// Test stride calculation
 	EXPECT_EQ(workspace.getVectorStride(), n);
 	
+	// Test additional helper methods
+	EXPECT_EQ(workspace.getVectorBase(), workspace.r);
+	EXPECT_EQ(workspace.getVectorStorageSize(), 6 * n * sizeof(double));
+	
+	// Test compatibility check
+	auto [rawMemory3, workspace3] = allocateBiCGStabWorkspace(n);
+	EXPECT_TRUE(workspace.isCompatibleWith(workspace3));
+	freeBiCGStabWorkspace(rawMemory3);
+	
+	auto [rawMemory4, workspace4] = allocateBiCGStabWorkspace(n + 1);
+	EXPECT_FALSE(workspace.isCompatibleWith(workspace4));
+	freeBiCGStabWorkspace(rawMemory4);
+	
 	// Free the workspace
 	freeBiCGStabWorkspace(rawMemory);
 }

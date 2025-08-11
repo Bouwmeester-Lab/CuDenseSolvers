@@ -188,6 +188,34 @@ struct BiCGStabWorkspace {
     int getVectorStride() const {
         return n;
     }
+    
+    /**
+     * @brief Get the base address of the vector storage area
+     * @return Pointer to the start of vector memory
+     */
+    __host__ __device__ 
+    double* getVectorBase() const {
+        return r;
+    }
+    
+    /**
+     * @brief Get the total size of vector storage in bytes
+     * @return Size in bytes of all vector storage
+     */
+    __host__ __device__ 
+    size_t getVectorStorageSize() const {
+        return 6 * n * sizeof(double);
+    }
+    
+    /**
+     * @brief Check if two workspaces share the same memory layout
+     * @param other Another workspace to compare with
+     * @return true if workspaces have compatible layout
+     */
+    __host__ __device__ 
+    bool isCompatibleWith(const BiCGStabWorkspace& other) const {
+        return (n == other.n && isValid() && other.isValid());
+    }
 };
 
 /**
