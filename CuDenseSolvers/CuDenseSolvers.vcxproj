@@ -92,6 +92,7 @@
     <ClInclude Include="include\Operators\LinearOperator.h" />
     <ClInclude Include="include\Operators\MatrixOperator.cuh" />
     <ClInclude Include="include\Solvers\BiCGStab.cuh" />
+    <ClInclude Include="include\Solvers\BiCGStabWorkspace.cuh" />
     <ClInclude Include="include\Solvers\Solver.cuh" />
   </ItemGroup>
   <ItemGroup>

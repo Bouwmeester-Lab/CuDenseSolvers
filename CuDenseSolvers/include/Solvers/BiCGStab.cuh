@@ -5,6 +5,7 @@
 #include "Solver.cuh"
 #include <cublas_v2.h>
 #include <stdexcept>
+#include "BiCGStabKernel.cuh"
 
 class DoubleBiCGStab : public IterativeSolver<double>
 {

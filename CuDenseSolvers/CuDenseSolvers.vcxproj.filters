@@ -20,6 +20,9 @@
       <Filter>Solvers\Kernels</Filter>
     </ClInclude>
     <ClInclude Include="include\Constants.cuh" />
+    <ClInclude Include="include\Solvers\BiCGStabWorkspace.cuh">
+      <Filter>Solvers\Models</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Operators">
@@ -30,6 +33,9 @@
     </Filter>
     <Filter Include="Solvers\Kernels">
       <UniqueIdentifier>{63c9e946-abd5-46b5-bb84-c5ae7a79f9c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Solvers\Models">
+      <UniqueIdentifier>{7d3c3a09-3c5c-4b66-bdcd-1715a229697f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

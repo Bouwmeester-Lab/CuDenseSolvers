@@ -49,7 +49,8 @@ struct BiCGStabWorkspace {
     static constexpr int TEMP_DOT = 4;   ///< Index for temporary dot product
     static constexpr int TS = 5;         ///< Index for ts = s.t
     static constexpr int TT = 6;         ///< Index for tt = t.t
-    static constexpr int NUM_SCALARS = 7; ///< Total number of scalars
+	static constexpr int residual_temp = 7; ///< Index for temporary residual norm
+    static constexpr int NUM_SCALARS = 8; ///< Total number of scalars
     
     /**
      * @brief Constructor that initializes workspace from raw memory
