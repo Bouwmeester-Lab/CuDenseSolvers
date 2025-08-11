@@ -50,7 +50,7 @@ int MatrixOperator<T, N>::size() const
 	return N;
 }
 
-template<rsize_t N>
+template<size_t N>
 class DoubleMatrixOperator : public MatrixOperator<double, N>
 {
 public:
