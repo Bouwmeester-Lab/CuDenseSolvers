@@ -43,15 +43,18 @@ struct BiCGStabWorkspace {
     
     // Named indices for scalar array access
     static constexpr int RHO_NEW = 0;    ///< Index for rho_new scalar
-    static constexpr int ALPHA = 1;      ///< Index for alpha scalar
-    static constexpr int OMEGA = 2;      ///< Index for omega scalar
-    static constexpr int BETA = 3;       ///< Index for beta scalar
-    static constexpr int TEMP_DOT = 4;   ///< Index for temporary dot product
-    static constexpr int TS = 5;         ///< Index for ts = s.t
-    static constexpr int TT = 6;         ///< Index for tt = t.t
-	static constexpr int residual_temp = 7; ///< Index for temporary residual norm
-    static constexpr int NUM_SCALARS = 8; ///< Total number of scalars
+	static constexpr int RHO_OLD = 1;    ///< Index for rho_old scalar
+    static constexpr int ALPHA = 2;      ///< Index for alpha scalar
+    static constexpr int OMEGA = 3;      ///< Index for omega scalar
+    static constexpr int BETA = 4;       ///< Index for beta scalar
+    static constexpr int TEMP_DOT = 5;   ///< Index for temporary dot product
+    static constexpr int TS = 6;         ///< Index for ts = s.t
+    static constexpr int TT = 7;         ///< Index for tt = t.t
+	static constexpr int residual_temp = 8; ///< Index for temporary residual norm
+    static constexpr int NUM_SCALARS = 9; ///< Total number of scalars
     
+	double* rawMemory; ///< Pointer to raw memory block (for device code)
+
     /**
      * @brief Constructor that initializes workspace from raw memory
      * @param rawMemory Pointer to pre-allocated contiguous memory block
@@ -60,17 +63,9 @@ struct BiCGStabWorkspace {
      * The raw memory must be at least getRequiredSize(size) bytes.
      * Memory layout is organized for optimal cache performance.
      */
-    __host__ __device__ 
-    BiCGStabWorkspace(double* rawMemory, int size) : n(size) {
-        if (rawMemory == nullptr || size <= 0) {
-            // Handle error case - in device code we can't throw exceptions
-            n = 0;
-            r = r0 = p = v = s = t = nullptr;
-            scalars = nullptr;
-            iterations = nullptr;
-            residual_norm = nullptr;
-            return;
-        }
+    __host__ BiCGStabWorkspace(int size) : n(size) {
+        
+		cudaMalloc(&rawMemory, getRequiredSize(size));
         
         // Calculate aligned offsets for each section
         double* current = rawMemory;
@@ -102,6 +97,12 @@ struct BiCGStabWorkspace {
         
         // Residual norm storage
         residual_norm = current;
+    }
+
+    ~BiCGStabWorkspace() {
+        if (rawMemory != nullptr) {
+            cudaFree(rawMemory);
+		}
     }
     
     /**
@@ -219,33 +220,33 @@ struct BiCGStabWorkspace {
     }
 };
 
-/**
- * @brief Helper function to allocate workspace on device
- * @param size Size of the linear system
- * @return Pair of raw memory pointer and workspace object, or {nullptr, invalid workspace} on failure
- */
-__host__ 
-inline std::pair<double*, BiCGStabWorkspace> allocateBiCGStabWorkspace(int size) {
-    if (size <= 0) {
-        return {nullptr, BiCGStabWorkspace(nullptr, 0)};
-    }
-    
-    size_t requiredBytes = BiCGStabWorkspace::getRequiredSize(size);
-    double* rawMemory = nullptr;
-    
-    cudaError_t err = cudaMalloc(&rawMemory, requiredBytes);
-    if (err != cudaSuccess || rawMemory == nullptr) {
-        return {nullptr, BiCGStabWorkspace(nullptr, 0)};
-    }
-    
-    BiCGStabWorkspace workspace(rawMemory, size);
-    if (!workspace.isValid()) {
-        cudaFree(rawMemory);
-        return {nullptr, BiCGStabWorkspace(nullptr, 0)};
-    }
-    
-    return {rawMemory, workspace};
-}
+///**
+// * @brief Helper function to allocate workspace on device
+// * @param size Size of the linear system
+// * @return Pair of raw memory pointer and workspace object, or {nullptr, invalid workspace} on failure
+// */
+//__host__ 
+//inline std::pair<double*, BiCGStabWorkspace> allocateBiCGStabWorkspace(int size) {
+//    if (size <= 0) {
+//        return {nullptr, BiCGStabWorkspace(nullptr, 0)};
+//    }
+//    
+//    size_t requiredBytes = BiCGStabWorkspace::getRequiredSize(size);
+//    double* rawMemory = nullptr;
+//    
+//    cudaError_t err = cudaMalloc(&rawMemory, requiredBytes);
+//    if (err != cudaSuccess || rawMemory == nullptr) {
+//        return {nullptr, BiCGStabWorkspace(nullptr, 0)};
+//    }
+//    
+//    BiCGStabWorkspace workspace(rawMemory, size);
+//    if (!workspace.isValid()) {
+//        cudaFree(rawMemory);
+//        return {nullptr, BiCGStabWorkspace(nullptr, 0)};
+//    }
+//    
+//    return {rawMemory, workspace};
+//}
 
 /**
  * @brief Helper function to free workspace allocated by allocateBiCGStabWorkspace

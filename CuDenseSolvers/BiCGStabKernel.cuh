@@ -68,6 +68,15 @@ namespace CuDenseSolvers
 		double* __restrict__ out_norm2, // may be nullptr, make sure it's initialized to 0.0 before calling
 		double* __restrict__ out_r0 = nullptr // may be nullptr
 	) {
+		bool sync_required = false;
+		if (out_norm2 != nullptr && *out_norm2 != 0.0) {
+			*out_norm2 = 0.0; // ensure out_norm2 is initialized to 0.0
+			sync_required = true; // we need to sync before we can use out_norm2
+		}
+		if (sync_required) {
+			grid.sync();
+		}
+
 		auto block = cg::this_thread_block();
 
 		const int tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
@@ -104,13 +113,22 @@ namespace CuDenseSolvers
 	__device__ inline void grid_axpy_and_norm(
 		cg::grid_group grid,
 		int n,
-		const double* alpha,
+		const double alpha,
 		const double* __restrict__ x,
 		const double* __restrict__ y,
 
 		double* __restrict__ yout,
 		double* __restrict__ out_norm2 // may be nullptr, make sure it's initialized to 0.0 before calling
 	) {
+		bool sync_required = false;
+		if (out_norm2 != nullptr && *out_norm2 != 0.0) {
+			*out_norm2 = 0.0; // ensure out_norm2 is initialized to 0.0
+			sync_required = true; // we need to sync before we can use out_norm2
+		}
+		if (sync_required) {
+			grid.sync();
+		}
+
 		auto block = cg::this_thread_block();
 
 		const int tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
@@ -119,7 +137,7 @@ namespace CuDenseSolvers
 		double local = 0.0;
 
 		for (int i = tid; i < n; i += stride) {
-			yout[i] = y[i] + (*alpha) * x[i]; // y += alpha * x
+			yout[i] = y[i] + (alpha) * x[i]; // y += alpha * x
 			if (out_norm2) local += yout[i] * yout[i]; // fuse norm squared
 		}
 
@@ -132,11 +150,102 @@ namespace CuDenseSolvers
 			// block-wide reduction using CG
 			double block_sum = cg::reduce(block, local, cg::plus<double>());
 			if (block.thread_rank() == 0) atomicAdd(out_norm2, block_sum);
+			// sync before consumers read out_norm2 or r
+			grid.sync();
+		}
+	}
+
+	/// <summary>
+	/// Calculate yout = y + alpha*x  and optionally the norm squared of y, and return the dot product of yout with r0
+	/// </summary>
+	template<int BLOCK_SIZE>
+	__device__ inline void grid_axpy_norm_dot(
+		cg::grid_group grid,
+		int n,
+		const double alpha,
+		const double* __restrict__ x,
+		const double* __restrict__ y,
+		const double* __restrict__ r0,
+
+		double* __restrict__ yout,
+		double* __restrict__ out_dot, // may be nullptr, make sure it's initialized to 0.0 before calling
+		double* __restrict__ out_norm2 // may be nullptr, make sure it's initialized to 0.0 before calling
+	) {
+		bool sync_required = false;
+		if (out_norm2 != nullptr && *out_norm2 != 0.0) {
+			*out_norm2 = 0.0; // ensure out_norm2 is initialized to 0.0
+			sync_required = true; // we need to sync before we can use out_norm2
+		}
+		if(out_dot != nullptr && *out_dot != 0.0) {
+			*out_dot = 0.0; // ensure out_dot is initialized to 0.0
+			sync_required = true; // we need to sync before we can use out_dot
+		}
+		if (sync_required) {
+			grid.sync();
 		}
 
-		// sync before consumers read out_norm2 or r
-		grid.sync();
+		auto block = cg::this_thread_block();
+
+		const int tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+		const int stride = gridDim.x * BLOCK_SIZE;
+
+		double local = 0.0;
+		double local_dot = 0.0; // for the dot product with r0
+
+		for (int i = tid; i < n; i += stride) {
+			yout[i] = y[i] + (alpha)*x[i]; // y += alpha * x
+			if (out_norm2) local += yout[i] * yout[i]; // fuse norm squared
+			if (out_dot) local_dot += yout[i] * r0[i]; // dot product with r0
+		}
+
+
+
+
+		if (out_norm2) {
+			// Block sync sufficient - no inter-block dependencies in computation
+			__syncthreads();
+			// block-wide reduction using CG
+			double block_sum = cg::reduce(block, local, cg::plus<double>());
+			if (block.thread_rank() == 0) atomicAdd(out_norm2, block_sum);
+		}
+		if(out_dot) {
+			// Block sync sufficient - no inter-block dependencies in computation
+			__syncthreads();
+			// block-wide reduction using CG
+			double block_sum = cg::reduce(block, local_dot, cg::plus<double>());
+			if (block.thread_rank() == 0) atomicAdd(out_dot, block_sum);
+		}
+		if (out_dot != nullptr || out_norm2 != nullptr) {
+			// ensure all threads have completed their work before returning
+			grid.sync();
+		}
 	}
+
+	/// <summary>
+	/// Calculate the residual yout = y + alpha*x + beta * s  and optionally the norm squared of y.
+	/// </summary>
+	template<int BLOCK_SIZE>
+	__device__ inline void grid_axbvpy(
+		
+		int n,
+		const double alpha,
+		const double beta,
+		const double* __restrict__ x,
+		const double* __restrict__ s,
+		const double* __restrict__ y,
+		double* __restrict__ yout
+	) {
+		
+		const int tid = blockIdx.x * BLOCK_SIZE + threadIdx.x;
+		const int stride = gridDim.x * BLOCK_SIZE;
+
+		
+
+		for (int i = tid; i < n; i += stride) {
+			yout[i] = y[i] + alpha * x[i] + beta * s[i]; // y += alpha * x + beta * s	
+		}
+	}
+
 
 	template<int BLOCK_SIZE, class A>
 	__device__ inline void grid_apply_and_dot(
@@ -218,11 +327,15 @@ namespace CuDenseSolvers
 		auto grid = cg::this_grid(); // get the grid group
 		grid_residual_and_norm<BLOCK_SIZE, OperatorA>(grid, N, A, x, b, ws.r, &ws.scalars[ws.RHO_NEW], ws.r0); // compute r = b - A*x and store initial residual in r0
 
-		
+		rho_new = ws.scalars[ws.RHO_NEW];
 
 		// let's loop
 		for (int k = 0; k < maxIter; ++k)
 		{
+			// update local variables
+			rho_new = ws.scalars[ws.RHO_NEW]; // get the new rho from the scalars
+			rho_old = ws.scalars[ws.RHO_OLD]; // get the old rho from the scalars
+
 			if (rho_new == 0.0) break; // convergence check
 
 			beta = (rho_new / rho_old) * (alpha / omega);
@@ -236,12 +349,11 @@ namespace CuDenseSolvers
 			grid_apply_and_dot<BLOCK_SIZE, OperatorA>(grid, N, A, ws.p, ws.v, ws.r0, &ws.scalars[ws.TEMP_DOT]); // v = A * p, dot product with r0
 
 			alpha = ws.scalars[ws.RHO_NEW] / ws.scalars[ws.TEMP_DOT]; // compute alpha
-			double negAlpha = -alpha; // precompute -alpha
 
 			// compute s = r - alpha * v for this row and the norm squared of s
-			grid_axpy_and_norm<BLOCK_SIZE>(grid, N, &negAlpha, ws.v, ws.r, ws.s, &ws.scalars[ws.residual_temp]);
+			grid_axpy_and_norm<BLOCK_SIZE>(grid, N, -alpha, ws.v, ws.r, ws.s, &ws.scalars[ws.residual_temp]);
 
-			if(ws.scalars[ws.residual_temp] < tol * tol) 
+			if(ws.scalars[ws.residual_temp] < tol) 
 			{   // check convergence on s
 				// if the norm of s is small enough, we can finish
 				// compute the final x update, x = x + alpha * p;
@@ -251,7 +363,7 @@ namespace CuDenseSolvers
 					if (residualOut) *residualOut = *ws.residual_norm; // store the final residual norm if requested
 					if (iterOut) *iterOut = k + 1; // store the number of iterations
 				}
-				grid_axpy_and_norm<BLOCK_SIZE>(grid, N, &alpha, ws.p, x, x, nullptr); // x += alpha * p
+				grid_axpy_and_norm<BLOCK_SIZE>(grid, N, alpha, ws.p, x, x, nullptr); // x += alpha * p
 				
 				break;
 			}
@@ -263,11 +375,17 @@ namespace CuDenseSolvers
 			omega = ws.scalars[ws.TS] / ws.scalars[ws.TT]; // compute omega
 
 			// update x = x + alpha * p + omega * s
-			grid_axpy_and_norm<BLOCK_SIZE>(grid, N, &alpha, ws.p, x, x, nullptr); // x += alpha * p
-			grid_axpy_and_norm<BLOCK_SIZE>(grid, N, &omega, ws.s, x, x, nullptr); // x += omega * s
-
-
-
+			grid_axbvpy<BLOCK_SIZE>(N, alpha, omega, ws.p, ws.s, x, x);
+			// calculate the residual: r = s - omega * t
+			if (blockIdx.x == 0 && threadIdx.x == 0)
+			{
+				// update the rho:
+				ws.scalars[ws.RHO_OLD] = rho_new; // store the old rho for the next iteration
+			}
+			grid_axpy_norm_dot<BLOCK_SIZE>(grid, N, -omega, ws.t, ws.s, ws.r0, ws.r, &ws.scalars[ws.RHO_NEW], ws.residual_norm);
+			if (*ws.residual_norm < tol) {
+				break;
+			}
 		}
 	}
 
