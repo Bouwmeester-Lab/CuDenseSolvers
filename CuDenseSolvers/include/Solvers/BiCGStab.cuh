@@ -6,54 +6,59 @@
 #include <cublas_v2.h>
 #include <stdexcept>
 #include "BiCGStabKernel.cuh"
+
 namespace CuDenseSolvers {
 
-	class DoubleBiCGStab : public IterativeSolver<double>
+	template<typename Tfunc, size_t N>
+	class BiCGStab
 	{
 	public:
-		DoubleBiCGStab();
-		~DoubleBiCGStab();
-		virtual int solve(const double* b, double* x, int maxIterations, double tolerance, cudaStream_t stream = cudaStreamPerThread) override;
-		virtual void setOperator(const LinearOperator<double>& A) override;
-		virtual int getNumIterations() const override;
+		BiCGStab();
+		~BiCGStab();
+		int solve(Tfunc& A, const double* b, double* x, int maxIterations, double tolerance, cudaStream_t stream = cudaStreamPerThread);
+		
+		int getNumIterations();
 		// Method to get the residual norm
-		virtual double getResidualNorm() const override;
+		double getResidualNorm() const;
+
 	private:
 		// double* workspace = nullptr; // Pointer to workspace memory
 		BiCGStabWorkspace* workspace; // Workspace object to manage memory
 		size_t size_required = 0; // Size required for the workspace
 		int numIterations = 0;
 
-
-		cublasHandle_t handle;
-
-		const LinearOperator<double>* A = nullptr;  // Non-owning pointer
-
 		void allocateBuffers();
 		void freeBuffers();
 	};
-
-	DoubleBiCGStab::DoubleBiCGStab()
+	template<typename Tfunc, size_t N>
+	BiCGStab<Tfunc, N>::BiCGStab()
 	{
-		cublasCreate(&handle);
+		allocateBuffers();
 	}
-
-	DoubleBiCGStab::~DoubleBiCGStab()
+	template<typename Tfunc, size_t N>
+	BiCGStab<Tfunc, N>::~BiCGStab()
 	{
 		freeBuffers();
-		cublasDestroy(handle);
 	}
 
-	int DoubleBiCGStab::solve(const double* b, double* x, int maxIterations, double tolerance, cudaStream_t stream)
+	template<typename Tfunc, size_t N>
+	int BiCGStab<Tfunc, N>::solve(Tfunc& A, const double* b, double* x, int maxIterations, double tolerance, cudaStream_t stream)
 	{
 		workspace->zero(); // Initialize workspace to zero
+		
+		//double res;
+		//cudaMemcpy(&res, workspace->residual_norm, sizeof(double), cudaMemcpyDeviceToHost); // Initialize residual norm to zero
+
 		const size_t dynSmem = 0;
 
-		int desiredBlocks = (A->size() + 255) / 256;
-		void* args[] = { workspace, &A, &b, &x, &maxIterations, &tolerance, &numIterations };
+		int desiredBlocks = (N + 255) / 256;
+		int size = N;
+		void* args[] = { &x, &b, &size, workspace, &A, &maxIterations, &tolerance};
 
-		cudaLaunchCooperativeKernel((void*)BiCGStabKernel<LinearOperator<double>>, desiredBlocks, 256, args, dynSmem, stream);
-
+		cudaLaunchCooperativeKernel((void*)BiCGStabKernel<Tfunc>, desiredBlocks, 256, args, dynSmem, stream);
+		
+		
+		return 0; // Return 0 for success, as the actual number of iterations is stored in numIterations
 		//if(!A)
 		//{
 		//	throw std::runtime_error("Operator A is not set.");
@@ -141,41 +146,29 @@ namespace CuDenseSolvers {
 
 		//return (resid < tolerance) ? 0 : 1;
 	}
-
-	void DoubleBiCGStab::setOperator(const LinearOperator<double>& Aop)
+	template<typename Tfunc, size_t N>
+	int BiCGStab<Tfunc, N>::getNumIterations()
 	{
-		if ((A != nullptr && Aop.size() != this->A->size()) || A == nullptr)
-		{
-			if (A != nullptr)
-				freeBuffers();  // If switching or resizing
-			A = &Aop;
-			allocateBuffers();
-		}
-
-	}
-
-	int DoubleBiCGStab::getNumIterations() const
-	{
+		cudaMemcpy(&numIterations, workspace->iterations, sizeof(int), cudaMemcpyDeviceToHost); // Get the number of iterations from the workspace
 		return numIterations;
 	}
 
-	double DoubleBiCGStab::getResidualNorm() const
+	template<typename Tfunc, size_t N>
+	double BiCGStab<Tfunc, N>::getResidualNorm() const
 	{
-		return *workspace->residual_norm;
+		double norm = 0.0;
+		cudaMemcpy(&norm, workspace->residual_norm, sizeof(double), cudaMemcpyDeviceToHost);
+		return  norm;
 	}
 
-	void DoubleBiCGStab::allocateBuffers()
+	template<typename Tfunc, size_t N>
+	void BiCGStab<Tfunc, N>::allocateBuffers()
 	{
-		if (A == nullptr) {
-			throw std::runtime_error("Operator A is not set.");
-		}
 		//size_t size_required = BiCGStabWorkspace::getRequiredSize(A->size());
-		workspace = new BiCGStabWorkspace(A->size());
-
-
+		workspace = new BiCGStabWorkspace(N);
 	}
-
-	void DoubleBiCGStab::freeBuffers()
+	template<typename Tfunc, size_t N>
+	void BiCGStab<Tfunc, N>::freeBuffers()
 	{
 		delete workspace;
 	}

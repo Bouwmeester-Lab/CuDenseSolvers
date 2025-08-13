@@ -50,7 +50,7 @@ struct BiCGStabWorkspace {
     static constexpr int TEMP_DOT = 5;   ///< Index for temporary dot product
     static constexpr int TS = 6;         ///< Index for ts = s.t
     static constexpr int TT = 7;         ///< Index for tt = t.t
-	static constexpr int residual_temp = 8; ///< Index for temporary residual norm
+	static constexpr int RES_TEMP = 8; ///< Index for temporary residual norm
     static constexpr int NUM_SCALARS = 9; ///< Total number of scalars
     
 	double* rawMemory; ///< Pointer to raw memory block (for device code)
@@ -82,6 +82,10 @@ struct BiCGStabWorkspace {
         scalars = current;
         current += NUM_SCALARS;
         
+        // Residual norm storage
+        residual_norm = current;
+		current += 1; // 1 double for residual norm
+
         // Output storage - aligned properly
         // Align to int boundary for iterations
         size_t offset = reinterpret_cast<size_t>(current) % sizeof(int);
@@ -95,8 +99,7 @@ struct BiCGStabWorkspace {
             reinterpret_cast<int*>(current) + 1
         );
         
-        // Residual norm storage
-        residual_norm = current;
+        
     }
 
     ~BiCGStabWorkspace() {

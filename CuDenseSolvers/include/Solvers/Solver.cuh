@@ -23,5 +23,5 @@ public:
 	virtual int getNumIterations() const = 0;
 	// Method to get the residual norm
 	virtual double getResidualNorm() const = 0;
-	virtual void setOperator(const LinearOperator<T>& A) = 0;
+	// virtual void setOperator(const LinearOperator<T>& A) = 0;
 };

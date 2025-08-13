@@ -44,6 +44,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.9\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);./include;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.9\lib\x64;$(LibraryPath)</LibraryPath>
@@ -88,16 +89,16 @@
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="BiCGStabKernel.cuh" />
     <ClInclude Include="include\Constants.cuh" />
     <ClInclude Include="include\Operators\LinearOperator.h" />
     <ClInclude Include="include\Operators\MatrixOperator.cuh" />
     <ClInclude Include="include\Solvers\BiCGStab.cuh" />
+    <ClInclude Include="include\Solvers\BiCGStabKernel.cuh" />
     <ClInclude Include="include\Solvers\BiCGStabWorkspace.cuh" />
     <ClInclude Include="include\Solvers\Solver.cuh" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="CuDenseSolvers.cu" />
+    <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

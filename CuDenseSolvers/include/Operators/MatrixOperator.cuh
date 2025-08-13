@@ -66,4 +66,34 @@ public:
 private:
 
 };
+/// <summary>
+/// It's important to note that this functor needs to be passed by value to the kernel, as it contains a pointer to device memory.
+/// </summary>
+/// <typeparam name="N"></typeparam>
+template<size_t N>
+struct MatrixOpFunctor 
+{
+	const double* devA; // Device pointer to matrix A
+
+	__host__ __device__ MatrixOpFunctor(const double* devA) : devA(devA)
+	{
+		//printf("MatrixOpFunctor created with devA pointing to %p\n", devA);
+	}
+
+	__device__ double operator() (int row, const double* __restrict__ devX) const
+	{
+		double result = 0.0;
+		const int tid = blockIdx.x * blockDim.x + threadIdx.x;
+		int indx = 0;
+		for(size_t col = 0; col < N; col++) 
+		{
+			indx = row + N * col;
+			result +=  devA[indx] * devX[col];
+		}
+#ifdef DEBUG_PRINT
+		printf("%d : Result for row %d is %f\n", tid, row, result);
+#endif // DEBUG_PRINT
+		return result;
+	}
+};
 
