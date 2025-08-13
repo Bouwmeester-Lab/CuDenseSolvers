@@ -60,7 +60,7 @@ TEST(SolverTests, TestBiCGStabSolver) {
 	cudaMemcpy(devb, b, 2 * sizeof(double), cudaMemcpyHostToDevice);
 	cudaMemcpy(devx, x, 2 * sizeof(double), cudaMemcpyHostToDevice);
 
-	CuDenseSolvers::DoubleBiCGStab<MatrixOpFunctor<2>, 2> solver;
+	CuDenseSolvers::BiCGStab<MatrixOpFunctor<2>, 2> solver;
 
 	int maxIterations = 100;
 	double tolerance = 1e-6;
