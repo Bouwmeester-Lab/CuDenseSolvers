@@ -44,6 +44,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
     <LibraryPath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.9\lib\x64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(VC_IncludePath);$(WindowsSDK_IncludePath);./include;</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LibraryPath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.9\lib\x64;$(LibraryPath)</LibraryPath>
@@ -84,16 +85,24 @@
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
+      <CodeGeneration>compute_86,sm_86</CodeGeneration>
     </CudaCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="include\Constants.cuh" />
     <ClInclude Include="include\Operators\LinearOperator.h" />
     <ClInclude Include="include\Operators\MatrixOperator.cuh" />
     <ClInclude Include="include\Solvers\BiCGStab.cuh" />
+    <ClInclude Include="include\Solvers\BiCGStabKernel.cuh" />
+    <ClInclude Include="include\Solvers\BiCGStabWorkspace.cuh" />
+    <ClInclude Include="include\Solvers\Common.cuh" />
+    <ClInclude Include="include\Solvers\Jacobi.cuh" />
+    <ClInclude Include="include\Solvers\JacobiKernel.cuh" />
+    <ClInclude Include="include\Solvers\JacobiWorkspace.cuh" />
     <ClInclude Include="include\Solvers\Solver.cuh" />
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="CuDenseSolvers.cu" />
+    <CudaCompile Include="kernel.cu" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

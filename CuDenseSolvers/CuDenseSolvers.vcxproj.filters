@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <CudaCompile Include="CuDenseSolvers.cu" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="include\Solvers\BiCGStab.cuh">
       <Filter>Solvers</Filter>
     </ClInclude>
@@ -16,6 +13,25 @@
     <ClInclude Include="include\Operators\MatrixOperator.cuh">
       <Filter>Operators</Filter>
     </ClInclude>
+    <ClInclude Include="include\Constants.cuh" />
+    <ClInclude Include="include\Solvers\BiCGStabWorkspace.cuh">
+      <Filter>Solvers\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Solvers\BiCGStabKernel.cuh">
+      <Filter>Solvers\Kernels</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Solvers\Common.cuh">
+      <Filter>Solvers\Kernels</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Solvers\JacobiKernel.cuh">
+      <Filter>Solvers\Kernels</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Solvers\JacobiWorkspace.cuh">
+      <Filter>Solvers\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Solvers\Jacobi.cuh">
+      <Filter>Solvers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Operators">
@@ -24,5 +40,14 @@
     <Filter Include="Solvers">
       <UniqueIdentifier>{17e18418-fe09-4f4d-bbd0-60ec63661f66}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Solvers\Kernels">
+      <UniqueIdentifier>{63c9e946-abd5-46b5-bb84-c5ae7a79f9c5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Solvers\Models">
+      <UniqueIdentifier>{7d3c3a09-3c5c-4b66-bdcd-1715a229697f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="kernel.cu" />
   </ItemGroup>
 </Project>
