@@ -20,6 +20,18 @@
     <ClInclude Include="include\Solvers\BiCGStabKernel.cuh">
       <Filter>Solvers\Kernels</Filter>
     </ClInclude>
+    <ClInclude Include="include\Solvers\Common.cuh">
+      <Filter>Solvers\Kernels</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Solvers\JacobiKernel.cuh">
+      <Filter>Solvers\Kernels</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Solvers\JacobiWorkspace.cuh">
+      <Filter>Solvers\Models</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Solvers\Jacobi.cuh">
+      <Filter>Solvers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Operators">

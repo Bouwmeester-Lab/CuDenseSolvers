@@ -95,6 +95,10 @@
     <ClInclude Include="include\Solvers\BiCGStab.cuh" />
     <ClInclude Include="include\Solvers\BiCGStabKernel.cuh" />
     <ClInclude Include="include\Solvers\BiCGStabWorkspace.cuh" />
+    <ClInclude Include="include\Solvers\Common.cuh" />
+    <ClInclude Include="include\Solvers\Jacobi.cuh" />
+    <ClInclude Include="include\Solvers\JacobiKernel.cuh" />
+    <ClInclude Include="include\Solvers\JacobiWorkspace.cuh" />
     <ClInclude Include="include\Solvers\Solver.cuh" />
   </ItemGroup>
   <ItemGroup>
