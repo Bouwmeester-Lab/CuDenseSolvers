@@ -31,6 +31,10 @@ public:
 	{
 		cudaMemcpy(devData, data, N * N * sizeof(T), cudaMemcpyHostToDevice);
 	}
+	void setDevPointer(T* devPointer) {
+		this->devData = devPointer;
+	}
+
 
 protected:
 	T* devData; // Matrix data in GPU memory

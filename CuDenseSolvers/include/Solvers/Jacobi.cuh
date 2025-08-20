@@ -8,7 +8,7 @@ class Jacobi
 {
 private:
 	DoubleMatrixOperator<N>* op;
-	JacobiWorkspace workspace;
+	JacobiWorkspace* workspace;
 	int blockSize;
 	int threads;
 public:
@@ -25,18 +25,18 @@ public:
 				xold = x;
 			}
 			else {
-				xold = workspace.xprevious;
+				xold = workspace->xprevious;
 			}
 
-			op->apply(xold, workspace.xnew);
-			CuDenseSolvers::JacobiKernel << <blocks, threads >> > (workspace.xnew, b, workspace);
+			op->apply(xold, workspace->xnew);
+			CuDenseSolvers::JacobiKernel << <blockSize, threads >> > (workspace->xnew, b, *workspace);
 
 
-			xold = workspace.xnew;
-			xnew = workspace.xprevious;
+			xold = workspace->xnew;
+			xnew = workspace->xprevious;
 
-			workspace.xprevious = xold;
-			workspace.xnew = xnew;
+			workspace->xprevious = xold;
+			workspace->xnew = xnew;
 		}
 
 		
@@ -44,7 +44,7 @@ public:
 	void setOperator(DoubleMatrixOperator<N>* op) 
 	{
 		this->op = op;
-		workspace = JacobiWorkspace(op->size());
+		workspace = new JacobiWorkspace(op->size());
 		threads = 256;
 		blockSize = (N + threads - 1) / threads;
 	}
@@ -59,4 +59,5 @@ Jacobi<N>::Jacobi()
 template <size_t N>
 Jacobi<N>::~Jacobi()
 {
+	delete workspace;
 }
